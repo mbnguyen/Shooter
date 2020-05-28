@@ -14,7 +14,6 @@ import pygame as pg
 import os
 import random
 import time
-from pygame.locals import *
 pg.init()
 
 class Data:
