@@ -14,7 +14,7 @@ import pygame as pg
 import os
 import random
 import time
-
+from pygame.locals import *
 pg.init()
 
 class Data:
@@ -104,6 +104,11 @@ class Data:
 
 class Win:
     def __init__(self, data):
+        infoObject = pg.display.Info()
+        print(infoObject)
+        w = int(infoObject.current_w)
+        h = int(infoObject.current_h)
+        data.bgSize = (min(w, data.bgSize[0]), min(h, data.bgSize[1]))
         self.display = pg.display.set_mode(data.bgSize)
         pg.display.set_caption(data.caption)
         self.textDied = data.fontBig.render('You died!!!', True, (255, 0, 0))
