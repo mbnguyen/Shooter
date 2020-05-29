@@ -196,8 +196,7 @@ class Win:
             if bullet.isVisible:
                 self.display.blit(bullet.draw(data).get("image"), bullet.draw(data).get("position"))
                 for enemy in enemies:
-                    position = enemy.getPosition()
-                    if bullet.hit(data, position, data.enemySize) and not enemy.isDrawingExplosion():
+                    if bullet.hit(enemy) and not enemy.isDrawingExplosion():
                         if bullet in player.getBullets(data):
                             player.getBullets(data).remove(bullet)
                         enemy.gotHit()
@@ -218,8 +217,7 @@ class Win:
             for bullet in enemy.getBullets(data):
                 if bullet.isVisible():
                     self.display.blit(bullet.draw(data).get("image"), bullet.draw(data).get("position"))
-                    position = player.getPosition()
-                    if bullet.hit(data, position, data.playerSize):
+                    if bullet.hit(player):
                         if bullet in enemy.getBullets(data):
                             enemy.getBullets(data).remove(bullet)
                         player.gotHit()
@@ -268,6 +266,7 @@ class Projectile:
         self.vel = data.bullet["vel"] * self.facing
         self.visible = True
         self.enemy = enemy
+        self.img = data.bullet.get("left")
 
     def isVisible(self):
         return self.visible
@@ -285,14 +284,16 @@ class Projectile:
                 image = data.bullet["right"]
         position = (self.x, self.y)
         self.x += self.vel
+        self.img = image
         return {"image" : image, "position" : position}
 
-    def hit(self, data, position, size):
-        if self.x + self.size[0] >= position[0] + 25 and self.x <= position[0] + size[0] - 25:
-            if self.y + self.size[1] >= position[1] + 20 and self.y <= position[1] + size[1] - 20:
-                data.hitSound.play()
-                return True
-        return False
+    def hit(self, object):
+        objectMask = object.getMask()
+        bulletMask = pg.mask.from_surface(self.img)
+        position = object.getPosition()
+        offset = (round(self.x - position[0]), round(self. y - position[1]))
+        collisionPoint = objectMask.overlap(bulletMask, offset)
+        return collisionPoint
 
 class Player:
     def __init__(self, data):
@@ -312,6 +313,10 @@ class Player:
         self.shootLoop = 0
         self.heart = data.playerMaxHeart
         self.score = 0
+        self.img = data.playerStanding
+
+    def getMask(self):
+        return pg.mask.from_surface(self.img)
 
     def getNumberBullets(self):
         return len(self.bullets)
@@ -376,6 +381,7 @@ class Player:
             else:
                 self.isJump = False
                 self.jumpCount = 10
+        self.img = image
 
         return {"image" : image, "position" : position}
 
@@ -444,6 +450,11 @@ class Enemy:
         self.explosionCount = 0
         self.drawingExplosion = True
 
+        self.img = data.enemyWalkRight[0]
+
+    def getMask(self):
+        return pg.mask.from_surface(self.img)
+
     def isDrawingExplosion(self):
         return self.drawingExplosion
 
@@ -503,6 +514,7 @@ class Enemy:
                 self.jumpCount = 10
 
         self.walk(data, self.facingLeft)
+        self.img = image
 
         return {"image" : image, "position" : position}
 
