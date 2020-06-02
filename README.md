@@ -10,5 +10,9 @@ How to play:
   Use up arrow key to jump.
   Use Spacebar to shoot.
   Watch out because the game gets harder as you score!
+  
+To balance player as the game gets harder:
+  You'll get an extra heart for every 2 points you scored.
+  You'll get an extra bullet for every 5 points you scored.
 
 Have fun!
